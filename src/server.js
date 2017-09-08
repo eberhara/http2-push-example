@@ -16,6 +16,14 @@ const server = http2.createSecureServer({
   key: fs.readFileSync(path.join(__dirname, '../ssl/key.pem'))
 }, onRequest)
 
+function wait (ms) {
+  const start = new Date().getTime()
+  let end = start
+  while (end < start + ms) {
+    end = new Date().getTime()
+  }
+}
+
 // Push file
 function push (stream, path) {
   const file = publicFiles.get(path)
@@ -31,6 +39,7 @@ function push (stream, path) {
 
 // Request handler
 function onRequest (req, res) {
+  wait(3000)
   const reqPath = req.path === '/' ? '/index.html' : req.path
   const file = publicFiles.get(reqPath)
 
@@ -45,6 +54,7 @@ function onRequest (req, res) {
   if (reqPath === '/index.html') {
     push(res.stream, '/bundle1.js')
     push(res.stream, '/bundle2.js')
+    push(res.stream, '/bundle4.js')
   }
 
   // Serve file
