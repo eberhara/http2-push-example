@@ -3,34 +3,13 @@
 const fs = require('fs')
 const http2 = require('http2')
 const path = require('path')
-const mime = require('mime')
 
 const { HTTP2_HEADER_PATH } = http2.constants
+const { getFiles } = require('./helper.js')
 
 const key = fs.readFileSync(path.resolve(__dirname, '../ssl/key.pem'))
 const cert = fs.readFileSync(path.resolve(__dirname, '../ssl/cert.pem'))
 
-const getFiles = (baseDir) => {
-  const files = new Map()
-
-  fs.readdirSync(baseDir).forEach((fileName) => {
-    const filePath = path.join(baseDir, fileName)
-    const fileDescriptor = fs.openSync(filePath, 'r')
-    const stat = fs.fstatSync(fileDescriptor)
-    const contentType = mime.getType(filePath)
-
-    files.set(`/${fileName}`, {
-      fileDescriptor,
-      headers: {
-        'content-length': stat.size,
-        'last-modified': stat.mtime.toUTCString(),
-        'content-type': contentType
-      }
-    })
-  })
-
-  return files
-}
 
 const publicFiles = getFiles(path.resolve(__dirname, '../public/'))
 
